@@ -19,7 +19,7 @@ variable "zone" {
 variable "bucket_name" {
   description = "Le nom du bucket Cloud Storage"
   type        = string
-  default     = "notes-bucket-12345"
+  default     = "notes-bucket-123456"
 }
 
 variable "docker_image" {
