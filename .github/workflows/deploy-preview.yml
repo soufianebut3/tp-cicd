@@ -36,17 +36,12 @@ jobs:
           service_account_key: ${{ secrets.SEC_GCP }}
           export_default_credentials: true
 
-      - name: Authenticate with Google Cloud Platform
-        uses: google-github-actions/auth@v2
-        with:
-          credentials_json: ${{ secrets.SEC_GCP }}
-
       - name: Build image cloud
         if: github.event.inputs.action == 'deploy' || github.event_name == 'push'
-        run: gcloud builds submit --tag gcr.io/local-notes-tpterraform/flask-app .
+        run: gcloud builds submit --tag gcr.io/local-notes-tpterraform/flask-app ./application
 
       - name: Terraform Init
-        run: terraform init -migrate-state
+        run: terraform init
 
       - name: Terraform Plan
         run: terraform plan
@@ -56,5 +51,5 @@ jobs:
         run: terraform apply -auto-approve
 
       - name: Terraform Destroy
-        if: github.event.inputs.action == 'destroy'
+        if: github.event.inputs.action == 'destroy' && github.event_name == 'workflow_dispatch'
         run: terraform destroy -auto-approve
