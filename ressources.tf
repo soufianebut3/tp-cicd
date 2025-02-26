@@ -32,7 +32,7 @@ resource "google_cloud_run_service" "cloud_run" {
 resource "google_storage_bucket_iam_member" "cloud_run_access" {
   bucket = google_storage_bucket.bucket.name
   role   = "roles/storage.objectAdmin"
-  member = "serviceAccount:${google_cloud_run_service.cloud_run.template[0].spec[0].service_account_name}"	
+  member = "serviceAccount:${google_cloud_run_service.cloud_run.template[0].spec[0].service_account_name}"
 }
 
 # Rendre le service Cloud Run public
