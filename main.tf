@@ -1,7 +1,7 @@
 resource "null_resource" "build_push_docker_image" {
   provisioner "local-exec" {
     command = <<EOT
-      gcloud builds submit --tag gcr.io/${var.project_id}/my-app:latest ${path.module}/application
+      gcloud builds submit --tag gcr.io/${var.project_id}/flask-app:latest ${path.module}/application
     EOT
   }
 }
