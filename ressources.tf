@@ -1,4 +1,11 @@
-# Déployer l'application Flask sur Cloud Run
+# Créer un bucket Cloud Storage
+resource "google_storage_bucket" "bucket" {
+  name          = var.bucket_name
+  location      = var.region
+  force_destroy = true
+}
+
+# Déployer l'application sur Cloud Run
 resource "google_cloud_run_service" "cloud_run" {
   name     = "flask-app"
   location = var.region
@@ -7,7 +14,6 @@ resource "google_cloud_run_service" "cloud_run" {
     spec {
       containers {
         image = var.docker_image
-
         env {
           name  = "BUCKET_NAME"
           value = google_storage_bucket.bucket.name
@@ -26,7 +32,7 @@ resource "google_cloud_run_service" "cloud_run" {
 resource "google_storage_bucket_iam_member" "cloud_run_access" {
   bucket = google_storage_bucket.bucket.name
   role   = "roles/storage.objectAdmin"
-  member = "serviceAccount:${google_cloud_run_service.cloud_run.template[0].spec[0].service_account_name}"
+  member = "serviceAccount:${google_cloud_run_service.cloud_run.template[0].spec[0].service_account_name}"	
 }
 
 # Rendre le service Cloud Run public
