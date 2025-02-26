@@ -18,17 +18,18 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+
       - name: Setup Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
         with:
           project_id: ${{ secrets.GCP_PROJECT_ID }}
-          service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
-          export_default_credentials: true
 
-      - name: Authenticate with GCP
-        run: |
-          echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}" > key.json
-          gcloud auth activate-service-account --key-file=key.json
+      - name: Verify GCloud Authentication
+        run: gcloud auth list
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
