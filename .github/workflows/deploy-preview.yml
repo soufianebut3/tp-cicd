@@ -1,5 +1,3 @@
-name: Deploy with Terraform and GCP
-
 on:
   push:
     branches:
@@ -35,26 +33,22 @@ jobs:
         uses: google-github-actions/setup-gcloud@v2
         with:
           project_id: ${{ secrets.GCP_PROJECT_ID }}
+          service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+          export_default_credentials: true
 
       - name: Authenticate with Google Cloud Platform
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
 
-      - name: Configurer l'authentification Docker avec GCR
+      # ✅ Ajout de l'authentification Docker pour éviter les erreurs de push
+      - name: Authentifier Docker avec Google Cloud
         run: |
           gcloud auth configure-docker gcr.io --quiet
 
-      - name: Vérification des fichiers avant le build
-        run: |
-          echo "Vérification des fichiers dans application/"
-          ls -l application/
-
-      - name: Build and Push Docker Image to GCP
+      - name: Build image cloud
         if: github.event.inputs.action == 'deploy' || github.event_name == 'push'
-        run: |
-          gcloud builds submit application \
-            --tag=gcr.io/${{ secrets.GCP_PROJECT_ID }}/flask-app
+        run: gcloud builds submit --tag gcr.io/local-notes-tpterraform/flask-app .
 
       - name: Terraform Init
         run: terraform init -migrate-state
