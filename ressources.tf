@@ -1,11 +1,12 @@
 # Créer un bucket Cloud Storage (s'il n'existe pas)
 resource "google_storage_bucket" "bucket" {
-  name     = var.bucket_name
-  location = var.region
+  name          = var.bucket_name
+  location      = var.region
   storage_class = "STANDARD"
 
   lifecycle {
-    prevent_destroy = true # Empêche Terraform de supprimer le bucket
+    prevent_destroy = true  # Empêche Terraform de supprimer le bucket
+    ignore_changes  = [name, storage_class] # Ignore les changements de nom et de classe de stockage
   }
 }
 
@@ -15,7 +16,8 @@ resource "google_service_account" "cloud_run_sa" {
   display_name = "Cloud Run Service Account"
 
   lifecycle {
-    prevent_destroy = true # Empêche Terraform de supprimer le Service Account
+    prevent_destroy = true  # Empêche Terraform de supprimer le Service Account existant
+    ignore_changes  = [display_name] # Ignore les changements de nom
   }
 }
 
@@ -49,6 +51,10 @@ resource "google_cloud_run_service" "cloud_run" {
   traffic {
     percent         = 100
     latest_revision = true
+  }
+
+  lifecycle {
+    ignore_changes = [template] # Ignore les changements mineurs sur la configuration
   }
 }
 
