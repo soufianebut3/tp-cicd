@@ -31,18 +31,20 @@ jobs:
         with:
           terraform_version: 1.0.0
 
+      # Authentification avec Google Cloud
+      - name: Authenticate with Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+
+      # Installation du CLI gcloud
       - name: Install the gcloud CLI
         uses: google-github-actions/setup-gcloud@v2
         with:
           project_id: ${{ secrets.GCP_PROJECT_ID }}
-          service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
-          export_default_credentials: true
 
-      - name: Authenticate with Google Cloud
-        run: |
-          echo '${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}' > gcp-key.json
-          gcloud auth activate-service-account --key-file=gcp-key.json
-          gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
+      - name: Configure gcloud project
+        run: gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
 
       - name: Build and Push Docker Image to GCP
         if: github.event.inputs.action == 'deploy' || github.event_name == 'push'
