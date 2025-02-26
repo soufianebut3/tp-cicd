@@ -1,33 +1,3 @@
-# Créer un bucket Cloud Storage (s'il n'existe pas)
-resource "google_storage_bucket" "bucket" {
-  name          = var.bucket_name
-  location      = var.region
-  storage_class = "STANDARD"
-
-  lifecycle {
-    prevent_destroy = true  # Empêche Terraform de supprimer le bucket
-    ignore_changes  = [name, storage_class] # Ignore les changements de nom et de classe de stockage
-  }
-}
-
-# Créer un Service Account pour Cloud Run (s'il n'existe pas)
-resource "google_service_account" "cloud_run_sa" {
-  account_id   = "cloud-run-sa"
-  display_name = "Cloud Run Service Account"
-
-  lifecycle {
-    prevent_destroy = true  # Empêche Terraform de supprimer le Service Account existant
-    ignore_changes  = [display_name] # Ignore les changements de nom
-  }
-}
-
-# Attribuer les permissions nécessaires au Service Account
-resource "google_project_iam_member" "cloud_run_sa_storage_access" {
-  project = var.project_id
-  role    = "roles/storage.objectAdmin"
-  member  = "serviceAccount:${google_service_account.cloud_run_sa.email}"
-}
-
 # Déployer l'application Flask sur Cloud Run
 resource "google_cloud_run_service" "cloud_run" {
   name     = "flask-app"
@@ -35,8 +5,6 @@ resource "google_cloud_run_service" "cloud_run" {
 
   template {
     spec {
-      service_account_name = google_service_account.cloud_run_sa.email
-
       containers {
         image = var.docker_image
 
@@ -52,21 +20,17 @@ resource "google_cloud_run_service" "cloud_run" {
     percent         = 100
     latest_revision = true
   }
-
-  lifecycle {
-    ignore_changes = [template] # Ignore les changements mineurs sur la configuration
-  }
 }
 
-# Autoriser Cloud Run à accéder au bucket
+# Donner l'accès au bucket au service Cloud Run
 resource "google_storage_bucket_iam_member" "cloud_run_access" {
   bucket = google_storage_bucket.bucket.name
   role   = "roles/storage.objectAdmin"
-  member = "serviceAccount:${google_service_account.cloud_run_sa.email}"
+  member = "serviceAccount:${google_cloud_run_service.cloud_run.template[0].spec[0].service_account_name}"
 }
 
 # Rendre le service Cloud Run public
-resource "google_cloud_run_service_iam_member" "public_access" {
+resource "google_cloud_run_service_iam_member" "all_users_invoker" {
   location = google_cloud_run_service.cloud_run.location
   service  = google_cloud_run_service.cloud_run.name
   role     = "roles/run.invoker"
