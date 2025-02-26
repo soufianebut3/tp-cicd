@@ -31,13 +31,13 @@ jobs:
         with:
           terraform_version: 1.0.0
 
-      # Authentification avec Google Cloud
+      # Authentification Google Cloud
       - name: Authenticate with Google Cloud
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
 
-      # Installation du CLI gcloud
+      # Installation CLI gcloud
       - name: Install the gcloud CLI
         uses: google-github-actions/setup-gcloud@v2
         with:
@@ -52,7 +52,9 @@ jobs:
       - name: Build and Push Docker Image to GCP
         if: github.event.inputs.action == 'deploy' || github.event_name == 'push'
         run: |
-          gcloud builds submit application --tag=gcr.io/${{ secrets.GCP_PROJECT_ID }}/flask-app --project=${{ secrets.GCP_PROJECT_ID }}
+          gcloud builds submit application \
+            --tag=gcr.io/${{ secrets.GCP_PROJECT_ID }}/flask-app \
+            --project=${{ secrets.GCP_PROJECT_ID }}
 
       - name: Terraform Init
         run: terraform init
