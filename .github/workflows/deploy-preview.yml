@@ -49,7 +49,7 @@ jobs:
       - name: Build and Push Docker Image to GCP
         if: github.event.inputs.action == 'deploy' || github.event_name == 'push'
         run: |
-          gcloud builds submit --tag gcr.io/${{ secrets.GCP_PROJECT_ID }}/flask-app ./application --project=${{ secrets.GCP_PROJECT_ID }}
+          gcloud builds submit ./application --tag gcr.io/${{ secrets.GCP_PROJECT_ID }}/flask-app --project=${{ secrets.GCP_PROJECT_ID }}
 
       - name: Terraform Init
         run: terraform init
