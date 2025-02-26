@@ -46,17 +46,13 @@ jobs:
       - name: Configure gcloud project
         run: gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
 
-      - name: Test Debug: Vérification du chemin
-        run: |
-          echo "Arborescence du repo:"
-          ls -R
-          echo "Vérification du Dockerfile dans ./application/"
-          ls -l ./application/Dockerfile
+      - name: Vérification de l'arborescence
+        run: ls -R
 
       - name: Build and Push Docker Image to GCP
         if: github.event.inputs.action == 'deploy' || github.event_name == 'push'
         run: |
-          gcloud builds submit ./application --tag=gcr.io/${{ secrets.GCP_PROJECT_ID }}/flask-app --project=${{ secrets.GCP_PROJECT_ID }}
+          gcloud builds submit application --tag=gcr.io/${{ secrets.GCP_PROJECT_ID }}/flask-app --project=${{ secrets.GCP_PROJECT_ID }}
 
       - name: Terraform Init
         run: terraform init
