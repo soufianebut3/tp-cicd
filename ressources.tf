@@ -1,13 +1,22 @@
-# Créer un bucket Cloud Storage
+# Créer un bucket Cloud Storage (s'il n'existe pas)
 resource "google_storage_bucket" "bucket" {
   name     = var.bucket_name
   location = var.region
+  storage_class = "STANDARD"
+
+  lifecycle {
+    prevent_destroy = true # Empêche Terraform de supprimer le bucket
+  }
 }
 
-# Créer un Service Account pour Cloud Run
+# Créer un Service Account pour Cloud Run (s'il n'existe pas)
 resource "google_service_account" "cloud_run_sa" {
   account_id   = "cloud-run-sa"
   display_name = "Cloud Run Service Account"
+
+  lifecycle {
+    prevent_destroy = true # Empêche Terraform de supprimer le Service Account
+  }
 }
 
 # Attribuer les permissions nécessaires au Service Account
