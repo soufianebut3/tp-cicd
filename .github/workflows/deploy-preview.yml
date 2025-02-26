@@ -48,7 +48,7 @@ jobs:
 
       - name: Build image cloud
         if: github.event.inputs.action == 'deploy' || github.event_name == 'push'
-        run: gcloud builds submit --tag gcr.io/local-notes-tpterraform/flask-app .
+        run: gcloud builds submit application --tag gcr.io/local-notes-tpterraform/flask-app
 
       - name: Terraform Init
         run: terraform init -migrate-state
